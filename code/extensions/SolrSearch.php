@@ -80,6 +80,12 @@ if(class_exists('ExtensibleSearchPage')) {
 		 * @var SolrSearchService
 		 */
 		public $solrSearchService;
+		
+		/**
+		 * Treated as $_GET inside this class. Useful for pushing in extra data
+		 * @var Array
+		 */
+		public $getVars = array();
 
 		public function updateCMSFields(FieldList $fields) {
 
@@ -178,6 +184,12 @@ if(class_exists('ExtensibleSearchPage')) {
 		 * @return SolrResultSet
 		 */
 		public function getQuery() {
+			
+			// @TODO Refactor this out it shouldn't be needed
+			if(empty($this->getVars)) {
+				$this->getVars = $_GET;
+			}
+			
 			if ($this->query) {
 				return $this->query;
 			}
@@ -189,20 +201,20 @@ if(class_exists('ExtensibleSearchPage')) {
 			$query = null;
 			$builder = $this->getSolr()->getQueryBuilder($this->owner->QueryType);
 
-			if (isset($_GET['Search'])) {
-				$query = $_GET['Search'];
+			if (isset($this->getVars['Search'])) {
+				$query = $this->getVars['Search'];
 
 				// lets convert it to a base solr query
 				$builder->baseQuery($query);
 			}
 
-			$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->owner->SortBy;
-			$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->owner->SortDir;
+			$sortBy = isset($this->getVars['SortBy']) ? $this->getVars['SortBy'] : $this->owner->SortBy;
+			$sortDir = isset($this->getVars['SortDir']) ? $this->getVars['SortDir'] : $this->owner->SortDir;
 			$sortDir = ($sortDir == 'Ascending') ? 'asc' : 'desc';
 			$types = $this->owner->searchableTypes();
 			// allow user to specify specific type
-			if (isset($_GET['SearchType'])) {
-				$fixedType = $_GET['SearchType'];
+			if (isset($this->getVars['SearchType'])) {
+				$fixedType = $this->getVars['SearchType'];
 				if (in_array($fixedType, $types)) {
 					$types = array($fixedType);
 				}
@@ -231,6 +243,10 @@ if(class_exists('ExtensibleSearchPage')) {
 			$activeFacets = $this->getActiveFacets();
 			if (count($activeFacets)) {
 				foreach ($activeFacets as $facetName => $facetValues) {
+					array_walk($facetValues, function(&$val){
+						$val = '"'.$val.'"';
+						return $val;
+					});
 				// @TODO This needs to be extended... as people may want inclusionary (AND) filters as well.
 					if (array_search($facetName, $facetGroupList) !== false) {
 						$builder->addFilter('{!tag=t'.array_search($facetName, $facetGroupList).'}'.$facetName, "(" . implode(' OR ', $facetValues) . ")");
@@ -240,8 +256,8 @@ if(class_exists('ExtensibleSearchPage')) {
 				}
 			}
 
-			$offset = isset($_GET['start']) ? $_GET['start'] : 0;
-			$limit = isset($_GET['limit']) ? $_GET['limit'] : ($this->owner->ResultsPerPage ? $this->owner->ResultsPerPage : 10);
+			$offset = isset($this->getVars['start']) ? $this->getVars['start'] : 0;
+			$limit = isset($this->getVars['limit']) ? $this->getVars['limit'] : ($this->owner->ResultsPerPage ? $this->owner->ResultsPerPage : 10);
 
 			if (count($types)) {
 				$sortBy = $this->solrSearchService->getSortFieldName($sortBy, $types);
@@ -315,7 +331,21 @@ if(class_exists('ExtensibleSearchPage')) {
 		 * Gets a list of facet based filters
 		 */
 		public function getActiveFacets() {
-			return isset($_GET[self::$filter_param]) ? $_GET[self::$filter_param] : array();
+			// @TODO Refactor this out it shouldn't be needed
+			if(empty($this->getVars)) {
+				$this->getVars = $_GET;
+			}
+			
+			$activeFacets = isset($this->getVars[self::$filter_param]) ? $this->getVars[self::$filter_param] : array();
+			//Check if the an empty value has come through and remove it.
+			// @TODO check this for sane-ness as it's likely to get weird when adding multiple filters
+			foreach($activeFacets as $key => $value) {
+				if($value[0] == ''){
+					unset($activeFacets[$key]);
+				}
+			}
+			
+			return $activeFacets;
 		}
 
 		/**
@@ -334,6 +364,7 @@ if(class_exists('ExtensibleSearchPage')) {
 			$mapping = $this->facetFieldMapping();
 			foreach ($facets as $title => $items) {
 				$object = new ViewableData();
+				$object->facetTitle = $title;
 				$object->Items = $this->currentFacets($title);
 				$title = isset($mapping[$title]) ? $mapping[$title] : $title;
 				$object->Title = Varchar::create_field('Varchar', $title);
@@ -471,6 +502,9 @@ if(class_exists('ExtensibleSearchPage')) {
 		 * Process and render search results
 		 */
 		function getSearchResults($data = null, $form = null){
+			
+			$this->owner->data()->get = $this->getRequest()->getVars();
+			
 			$query = $this->owner->data()->getQuery();
 
 			$term = isset($_GET['Search']) ? Convert::raw2xml($_GET['Search']) : '';
