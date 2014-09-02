@@ -243,15 +243,26 @@ if(class_exists('ExtensibleSearchPage')) {
 			$activeFacets = $this->getActiveFacets();
 			if (count($activeFacets)) {
 				foreach ($activeFacets as $facetName => $facetValues) {
-					array_walk($facetValues, function(&$val){
-						$val = '"'.$val.'"';
-						return $val;
-					});
-				// @TODO This needs to be extended... as people may want inclusionary (AND) filters as well.
-					if (array_search($facetName, $facetGroupList) !== false) {
-						$builder->addFilter('{!tag=t'.array_search($facetName, $facetGroupList).'}'.$facetName, "(" . implode(' OR ', $facetValues) . ")");
+					
+					if (substr($facetName, -3) == '_dt') {
+						if ($facetValues['From']) {
+							if ($facetValues['To']) {
+								$from = date('o-m-d\TH:i:s\Z', strtotime($facetValues['From']));
+								$to = date('o-m-d\TH:i:s\Z', strtotime($facetValues['To']));
+								$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
+							}
+						}
 					} else {
-						$builder->addFilter($facetName, "(" . implode(' OR ', $facetValues) . ")");
+						array_walk($facetValues, function(&$val){
+							$val = '"'.$val.'"';
+							return $val;
+						});
+						// @TODO This needs to be extended... as people may want inclusionary (AND) filters as well.
+						if (array_search($facetName, $facetGroupList) !== false) {
+							$builder->addFilter('{!tag=t'.array_search($facetName, $facetGroupList).'}'.$facetName, "(" . implode(' OR ', $facetValues) . ")");
+						} else {
+							$builder->addFilter($facetName, "(" . implode(' OR ', $facetValues) . ")");
+						}
 					}
 				}
 			}
