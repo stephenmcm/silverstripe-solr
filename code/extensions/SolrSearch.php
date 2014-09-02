@@ -338,9 +338,12 @@ if(class_exists('ExtensibleSearchPage')) {
 			
 			$activeFacets = isset($this->getVars[self::$filter_param]) ? $this->getVars[self::$filter_param] : array();
 			//Check if the an empty value has come through and remove it.
-			// @TODO check this for sane-ness as it's likely to get weird when adding multiple filters
+			// @TODO Change this to a callback that can let false and null through as they maybe valid selections?
+			// Using array_filter may be a little aggressive it will remove: '', FALSE and NULL
 			foreach($activeFacets as $key => $value) {
-				if($value[0] == ''){
+				if(array_filter($value)){
+					$activeFacets[$key] = array_filter($value);
+				} else {
 					unset($activeFacets[$key]);
 				}
 			}
