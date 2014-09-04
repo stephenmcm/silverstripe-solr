@@ -245,13 +245,16 @@ if(class_exists('ExtensibleSearchPage')) {
 				foreach ($activeFacets as $facetName => $facetValues) {
 					
 					if (substr($facetName, -3) == '_dt') {
-						if ($facetValues['From']) {
-							if ($facetValues['To']) {
-								$from = date('o-m-d\TH:i:s\Z', strtotime($facetValues['From']));
-								$to = date('o-m-d\TH:i:s\Z', strtotime($facetValues['To']));
-								$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
-							}
+						$from = '*'; //Wildcard for time
+						$to = '*';						
+						if (isset($facetValues['From'])) {
+							$from = date('o-m-d\TH:i:s\Z', strtotime($facetValues['From']));
+							//UTC /Z time if we can. Should probably test this and move to a wildcard if it fails
+						} 
+						if (isset($facetValues['To'])) {
+							$to = date('o-m-d\TH:i:s\Z', strtotime($facetValues['To']));
 						}
+						$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
 					} else {
 						array_walk($facetValues, function(&$val){
 							$val = '"'.$val.'"';
