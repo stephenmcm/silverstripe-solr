@@ -186,8 +186,8 @@ if(class_exists('ExtensibleSearchPage')) {
 		public function getQuery() {
 			
 			// @TODO Refactor this out it shouldn't be needed
-			if(empty($this->getVars)) {
-				$this->getVars = $_GET;
+			if(empty($this->owner->getVars)) {
+				$this->owner->getVars = $_GET;
 			}
 			
 			if ($this->query) {
@@ -201,20 +201,20 @@ if(class_exists('ExtensibleSearchPage')) {
 			$query = null;
 			$builder = $this->getSolr()->getQueryBuilder($this->owner->QueryType);
 
-			if (isset($this->getVars['Search'])) {
-				$query = $this->getVars['Search'];
+			if (isset($this->owner->getVars['Search'])) {
+				$query = $this->owner->getVars['Search'];
 
 				// lets convert it to a base solr query
 				$builder->baseQuery($query);
 			}
 
-			$sortBy = isset($this->getVars['SortBy']) ? $this->getVars['SortBy'] : $this->owner->SortBy;
-			$sortDir = isset($this->getVars['SortDir']) ? $this->getVars['SortDir'] : $this->owner->SortDir;
+			$sortBy = isset($this->owner->getVars['SortBy']) ? $this->owner->getVars['SortBy'] : $this->owner->SortBy;
+			$sortDir = isset($this->owner->getVars['SortDir']) ? $this->owner->getVars['SortDir'] : $this->owner->SortDir;
 			$sortDir = ($sortDir == 'Ascending') ? 'asc' : 'desc';
 			$types = $this->owner->searchableTypes();
 			// allow user to specify specific type
-			if (isset($this->getVars['SearchType'])) {
-				$fixedType = $this->getVars['SearchType'];
+			if (isset($this->owner->getVars['SearchType'])) {
+				$fixedType = $this->owner->getVars['SearchType'];
 				if (in_array($fixedType, $types)) {
 					$types = array($fixedType);
 				}
@@ -272,8 +272,8 @@ if(class_exists('ExtensibleSearchPage')) {
 				}
 			}
 
-			$offset = isset($this->getVars['start']) ? $this->getVars['start'] : 0;
-			$limit = isset($this->getVars['limit']) ? $this->getVars['limit'] : ($this->owner->ResultsPerPage ? $this->owner->ResultsPerPage : 10);
+			$offset = isset($this->owner->getVars['start']) ? $this->owner->getVars['start'] : 0;
+			$limit = isset($this->owner->getVars['limit']) ? $this->owner->getVars['limit'] : ($this->owner->ResultsPerPage ? $this->owner->ResultsPerPage : 10);
 
 			if (count($types)) {
 				$sortBy = $this->solrSearchService->getSortFieldName($sortBy, $types);
@@ -348,11 +348,11 @@ if(class_exists('ExtensibleSearchPage')) {
 		 */
 		public function getActiveFacets() {
 			// @TODO Refactor this out it shouldn't be needed
-			if(empty($this->getVars)) {
-				$this->getVars = $_GET;
+			if(empty($this->owner->getVars)) {
+				$this->owner->getVars = $_GET;
 			}
 			
-			$activeFacets = isset($this->getVars[self::$filter_param]) ? $this->getVars[self::$filter_param] : array();
+			$activeFacets = isset($this->owner->getVars[self::$filter_param]) ? $this->owner->getVars[self::$filter_param] : array();
 			//Check if the an empty value has come through and remove it.
 			// @TODO Change this to a callback that can let false and null through as they maybe valid selections?
 			// Using array_filter may be a little aggressive it will remove: '', FALSE and NULL
