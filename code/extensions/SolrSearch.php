@@ -504,12 +504,26 @@ if(class_exists('ExtensibleSearchPage')) {
 			$queryString = $this->owner->data()->SearchQuery();
 			if (count($activeFacets)) {
 				foreach ($activeFacets as $facetName => $facetValues) {
-					foreach ($facetValues as $i => $v) {
+					if (key_exists('From', $facetValues) && key_exists('To', $facetValues)) {
 						$item = new stdClass();
-						$item->Name = $v;
-						$paramName = urlencode(SolrSearch::$filter_param . '[' . $facetName . '][' . $i . ']') .'='. urlencode($item->Name);
-						$item->RemoveLink = $this->owner->Link('getForm') . '?' . str_replace($paramName, '', $queryString);
+						$item->Name = $facetValues['From'] . ' to ' . $facetValues['To'];
+						
+						$paramName = urlencode(SolrSearch::$filter_param . '[' . $facetName . '][From]') .'='. urlencode($facetValues['From']);
+						$removedQueryString = str_replace($paramName, '', $queryString);
+						
+						$paramName = urlencode(SolrSearch::$filter_param . '[' . $facetName . '][To]') .'='. urlencode($facetValues['To']);
+						$removedQueryString = str_replace($paramName, '', $removedQueryString);
+						
+						$item->RemoveLink = $this->owner->Link('getForm') . '?' . $removedQueryString;
 						$parts[] = new ArrayData($item);
+					} else {
+						foreach ($facetValues as $i => $v) {
+							$item = new stdClass();
+							$item->Name = $v;
+							$paramName = urlencode(SolrSearch::$filter_param . '[' . $facetName . '][' . $i . ']') .'='. urlencode($item->Name);
+							$item->RemoveLink = $this->owner->Link('getForm') . '?' . str_replace($paramName, '', $queryString);
+							$parts[] = new ArrayData($item);
+						}
 					}
 				}
 			}
