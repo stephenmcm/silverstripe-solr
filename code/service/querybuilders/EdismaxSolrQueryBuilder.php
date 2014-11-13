@@ -9,8 +9,10 @@
 class EdismaxSolrSearchBuilder extends SolrQueryBuilder {
 	public $title = 'Solr Edismax';
 	
+	protected $enableQueryPlus = true;
+
 	public function toString() {
-		return $this->userQuery;
+		return $this->parse($this->userQuery);
 	}
 
 	public function getParams() {
@@ -53,5 +55,20 @@ class EdismaxSolrSearchBuilder extends SolrQueryBuilder {
 		$this->facetParams();
 		
 		return $this->params;
+	}
+	
+	public function parse($string) {
+		if($this->enableQueryWildcard) $string = $this->wildcard($string);
+		if($this->enableQueryPlus) $string = $this->plus($string);
+		return $string;
+	}
+	
+	public function plus($string) {
+		$words = explode(' ', $string);
+		array_walk($words, function(&$word) {
+			$word = '+' . $word;
+		});
+		
+		return implode(' ', $words);
 	}
 }
