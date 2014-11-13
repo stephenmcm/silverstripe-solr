@@ -93,6 +93,7 @@ class SolrSearchService {
 
 		$this->queryBuilders['default'] = 'SolrQueryBuilder';
 		$this->queryBuilders['dismax'] = 'DismaxSolrSearchBuilder';
+		$this->queryBuilders['edismax'] = 'EdismaxSolrSearchBuilder';
 	}
 	
 	public function setCache($cache) {
