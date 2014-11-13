@@ -58,8 +58,9 @@ class EdismaxSolrSearchBuilder extends SolrQueryBuilder {
 	}
 	
 	public function parse($string) {
-		if($this->enableQueryWildcard) $string = $this->wildcard($string);
-		if($this->enableQueryPlus) $string = $this->plus($string);
+		if ($string == '') return '*';
+		if ($this->enableQueryWildcard) $string = $this->wildcard($string);
+		if ($this->enableQueryPlus) $string = $this->plus($string);
 		return $string;
 	}
 	
