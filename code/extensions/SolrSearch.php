@@ -248,12 +248,14 @@ if(class_exists('ExtensibleSearchPage')) {
 						$from = '*'; //Wildcard for time
 						$to = '*';						
 						if (isset($facetValues['From'])) {
-							$date = DateTime::createFromFormat ( 'd/m/Y' , $facetValues['From']);
+							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['From']);
+							$date->sub(new DateInterval('P1D'));
 							$from = $date->format('o-m-d\TH:i:s\Z');
 							//UTC /Z time if we can. Should probably test this and move to a wildcard if it fails
 						} 
 						if (isset($facetValues['To'])) {
-							$date = DateTime::createFromFormat ( 'd/m/Y' , $facetValues['To']);
+							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['To']);
+							$date->add(new DateInterval('P1D'));
 							$to = $date->format('o-m-d\TH:i:s\Z');
 						}
 						$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
