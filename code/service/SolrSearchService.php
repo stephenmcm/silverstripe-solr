@@ -988,7 +988,7 @@ class SolrSchemaMapper {
 						$hoursToRemove = (strlen($value) == 10) ? 0 : date('Z');
 						$ts = strtotime($value);
 						$tsHTR = $ts - $hoursToRemove;
-						$date = date('o-m-d\TH:i:s\Z', $tsHTR);
+						$date = date('Y-m-d\TH:i:s\Z', $tsHTR);
 						return $date;
 					}
 				case 'HTMLText': {
