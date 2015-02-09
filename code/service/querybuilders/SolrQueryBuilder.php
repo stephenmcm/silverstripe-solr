@@ -346,4 +346,15 @@ class SolrQueryBuilder {
 
 		return $this;
 	}
+	
+	
+	public function getEnableQueryWildcard() {
+		return $this->enableQueryWildcard;
+	}
+
+	public function setEnableQueryWildcard(Boolean $enableQueryWildcard) {
+		$this->enableQueryWildcard = $enableQueryWildcard;
+		return $this;
+	}
+
 }
