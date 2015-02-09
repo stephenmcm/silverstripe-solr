@@ -10,7 +10,7 @@ class EDismaxSolrSearchBuilder extends SolrQueryBuilder {
 	public $title = 'Solr Extended Dismax';
 	
 	// @TODO Remove this, and use 'minimum match' instead. 
-	protected $enableQueryPlus = false;
+	protected $enableQueryPlus = true;
 	
 	public function toString() {
 		return $this->parse($this->userQuery);
