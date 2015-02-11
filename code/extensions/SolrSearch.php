@@ -213,17 +213,40 @@ if(class_exists('ExtensibleSearchPage')) {
 			
 			if (count($activeFacets)) {
 				foreach ($activeFacets as $facetName => $facetValues) {
-				// @TODO This needs improved configurability of this currently all facet are one conjunction
-				// (either 'AND'/'OR'), there will be situations where some facets should be AND and other should be OR+
-					if (array_search($facetName, $facetGroupList) !== false) {
-						$this->builder->addFilter(
-								'{!tag=t' . array_search($facetName, $facetGroupList) . '}' . $facetName,
-								"(" . implode($conjunction, $facetValues) . ")"
-							);
+					
+					if (substr($facetName, -3) == '_dt') {
+						$from = '*'; //Wildcard for time
+						$to = '*';						
+						if (isset($facetValues['From'])) {
+							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['From']);
+							$date->setTime(0,0,0); //Set time to the start of the day
+							$from = $date->format('o-m-d\TH:i:s\Z');
+							//UTC /Z time if we can. Should probably test this and move to a wildcard if it fails
+						} 
+						if (isset($facetValues['To'])) {
+							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['To']);
+							$date->setTime(23,59,59); //Set time to the end of the day
+							// This search should now catch the full 24 hours of the day.
+							$to = $date->format('o-m-d\TH:i:s\Z');
+						}
+						$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
 					} else {
-						$this->builder->addFilter(
-							$facetName, "(" . implode($conjunction, $facetValues) . ")"
-						);
+
+					array_walk($facetValues, function(&$value, $key){
+						$value = '"'.$value.'"'; // Add quotes
+					});
+					// @TODO This needs improved configurability of this currently all facet are one conjunction
+					// (either 'AND'/'OR'), there will be situations where some facets should be AND and other should be OR+
+						if (array_search($facetName, $facetGroupList) !== false) {
+							$this->builder->addFilter(
+									'{!tag=t' . array_search($facetName, $facetGroupList) . '}' . $facetName,
+									"(" . implode($conjunction, $facetValues) . ")"
+								);
+						} else {
+							$this->builder->addFilter(
+								$facetName, "(" . implode($conjunction, $facetValues) . ")"
+							);
+						}
 					}
 				}
 			}
