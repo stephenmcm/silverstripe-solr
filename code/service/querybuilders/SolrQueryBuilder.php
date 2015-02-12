@@ -63,7 +63,7 @@ class SolrQueryBuilder {
 	 *
 	 * @var int
 	 */
-	protected $facetCount = 1;
+	protected $facetCount = 0;
 
 	public function baseQuery($query) {
 		$this->userQuery = $query;
@@ -168,7 +168,7 @@ class SolrQueryBuilder {
 			}
 		}
 
-		$this->params['facet.mincount'] = $this->facetCount ? $this->facetCount : 1;
+		$this->params['facet.mincount'] = $this->facetCount;
 		
 		
 	}
@@ -352,7 +352,7 @@ class SolrQueryBuilder {
 		return $this->enableQueryWildcard;
 	}
 
-	public function setEnableQueryWildcard(Boolean $enableQueryWildcard) {
+	public function setEnableQueryWildcard($enableQueryWildcard) {
 		$this->enableQueryWildcard = $enableQueryWildcard;
 		return $this;
 	}

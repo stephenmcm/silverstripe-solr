@@ -65,7 +65,7 @@ if(class_exists('ExtensibleSearchPage')) {
 		 * Typical conjunctions: AND, OR, NOT 
 		 * @var string
 		 */
-		public static $facetConjunction = 'AND';
+		public static $facetConjunction = 'OR';
 		
 		/**
 		 * @var SolrQueryBuilder
@@ -229,14 +229,14 @@ if(class_exists('ExtensibleSearchPage')) {
 							// This search should now catch the full 24 hours of the day.
 							$to = $date->format('o-m-d\TH:i:s\Z');
 						}
-						$builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
+						$this->builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
 					} else {
 
-					array_walk($facetValues, function(&$value, $key){
-						$value = '"'.$value.'"'; // Add quotes
-					});
-					// @TODO This needs improved configurability of this currently all facet are one conjunction
-					// (either 'AND'/'OR'), there will be situations where some facets should be AND and other should be OR+
+						array_walk($facetValues, function(&$value, $key){
+							$value = '"'.$value.'"'; // Add quotes
+						});
+						// @TODO This needs improved configurability of this currently all facet are one conjunction
+						// (either 'AND'/'OR'), there will be situations where some facets should be AND and other should be OR+
 						if (array_search($facetName, $facetGroupList) !== false) {
 							$this->builder->addFilter(
 									'{!tag=t' . array_search($facetName, $facetGroupList) . '}' . $facetName,
