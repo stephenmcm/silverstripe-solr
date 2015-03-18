@@ -67,6 +67,13 @@ if(class_exists('ExtensibleSearchPage')) {
 		 */
 		public static $facetConjunction = 'OR';
 		
+		
+		/**
+		 * Maximum number of facets returned for a single field.
+		 * @var Int
+		 */
+		private static $facetLimit = 100;
+		
 		/**
 		 * @var SolrQueryBuilder
 		 */
@@ -312,7 +319,7 @@ if(class_exists('ExtensibleSearchPage')) {
 				$sortBy = 'score';
 			}
 
-			$this->builder->addFacetFields($this->fieldsForFacets($tag = true));
+			$this->builder->addFacetFields($this->fieldsForFacets($tag = true), Config::inst()->get('SolrSearch', 'facetLimit'));
 			
 			$this->setFilterQuery();
 
