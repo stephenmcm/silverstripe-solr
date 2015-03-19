@@ -61,6 +61,11 @@ class EDismaxSolrSearchBuilder extends SolrQueryBuilder {
 	
 	public function parse($string) {
 		if ($string == '') return '*';
+		$preformatted = FALSE;
+		foreach (array('"', '+', '-', '*') as $needle) {
+			$preformatted = (bool) stripos($string, $needle);
+		}
+		if ($preformatted) return $string;
 		if ($this->enableQueryWildcard) $string = $this->wildcard($string);
 		if ($this->enableQueryPlus) $string = $this->plus($string);
 		return $string;
