@@ -60,15 +60,29 @@ class EDismaxSolrSearchBuilder extends SolrQueryBuilder {
 	}
 	
 	public function parse($string) {
+		
 		if ($string == '') return '*';
-		$preformatted = FALSE;
-		foreach (array('"', '+', '-', '*') as $needle) {
-			$preformatted = (bool) stripos($string, $needle);
+
+		$w = ($this->enableQueryWildcard) ? '*' : '';
+		$p = ($this->enableQueryPlus) ? '+' : '';
+
+		$searchString = '';
+		preg_match_all('/"(?:\\\\.|[^\\\\"])*"|\S+/', $string, $words);
+
+		foreach ($words[0] as $word) {
+			//if quotes only add a +
+			//if instrument add + wrap in ""
+			//else add + wrap in *
+			if (strpos($word, '"')) {
+				$searchString .= "{$p}{$word}";
+			} elseif (preg_match('/[A-Za-z0-9_-]+[-\/]+[A-Za-z0-9_-]+/', $word)) {
+				$searchString .= "{$p}\"{$word}\"";
+			} else {
+				$searchString .= "{$p}{$w}{$word}{$w}";
+			}
 		}
-		if ($preformatted) return $string;
-		if ($this->enableQueryWildcard) $string = $this->wildcard($string);
-		if ($this->enableQueryPlus) $string = $this->plus($string);
-		return $string;
+	
+		return $searchString;
 	}
 	
 	public function plus($string) {
