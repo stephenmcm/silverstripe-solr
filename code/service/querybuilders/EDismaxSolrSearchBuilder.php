@@ -71,14 +71,15 @@ class EDismaxSolrSearchBuilder extends SolrQueryBuilder {
 
 		foreach ($words[0] as $word) {
 			//if quotes only add a +
-			//if instrument add + wrap in ""
+			//if hyphenated wrap in quotes to prevent solr exploding the term
 			//else add + wrap in *
-			if (strpos($word, '"')) {
-				$searchString .= "{$p}{$word}";
+			if (strpos($word, '"') !== FALSE) {
+				$searchString .= " {$p}{$word} ";
 			} elseif (preg_match('/[A-Za-z0-9_-]+[-\/]+[A-Za-z0-9_-]+/', $word)) {
-				$searchString .= "{$p}\"{$word}\"";
+				//catches: X-ray 12-pound SS-build/14 etc
+				$searchString .= " {$p}\"{$word}\" ";
 			} else {
-				$searchString .= "{$p}{$w}{$word}{$w}";
+				$searchString .= " {$p}{$w}{$word}{$w} ";
 			}
 		}
 	
