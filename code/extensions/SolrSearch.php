@@ -325,7 +325,11 @@ if(class_exists('ExtensibleSearchPage')) {
 
 			$offset = isset($this->owner->getVars['start']) ? $this->owner->getVars['start'] : 0;
 			$limit = isset($this->owner->getVars['limit']) ? $this->owner->getVars['limit'] : ($this->owner->ResultsPerPage ? $this->owner->ResultsPerPage : 10);
-
+			
+			if (isset($this->owner->getVars['SS_ID_i'])) {
+				$this->builder->addFilter('SS_ID_i', $this->owner->getVars['SS_ID_i']);
+			}
+			
 			if (count($types)) {
 				$sortBy = $this->solrSearchService->getSortFieldName($sortBy, $types);
 				$this->builder->addFilter('ClassNameHierarchy_ms', implode(' OR ', $types));
