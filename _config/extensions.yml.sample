@@ -7,3 +7,6 @@ ExtensibleSearchPage:
 ExtensibleSearchPage_Controller:
   extensions:
     - 'SolrSearch_Controller'
+SiteTree:
+  extensions:
+    - 'SolrIndexable'

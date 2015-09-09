@@ -1,14 +1,3 @@
-<style>
-.esp-dropdown {
-    position: absolute;
-    background-color: white;
-    border: 1px solid;
-    border-top: 0;
-    padding: 1em;
-    display: none;
-	z-index: 9001; // ;)
-}
-</style>
 <form $FormAttributes>
 <% if $Message %>
 <p id="{$FormName}_error" class="message $MessageType">$Message</p>
@@ -25,8 +14,7 @@
 		<% if $RightTitle %><label class="right" for="$ID">$RightTitle</label><% end_if %>
 		<% if $Message %><span class="message $MessageType">$Message</span><% end_if %>
 		<% if $Description %><span class="description">$Description</span><% end_if %>
-		<div class="esp-dropdown esp-search-suggestions jq-dropdown" aria-labelledby="SearchForm_getForm_Search">
-			<div id="Facets" class="panel panel-default">
+			<div class="esp-dropdown esp-search-suggestions jq-dropdown" aria-labelledby="SearchForm_getForm_Search">
 				<div class="recent-searches panel panel-default" style="display: none">
 					<div class="panel-heading">
 						<h3 class="panel-title">Recent Searches</h3>
@@ -35,18 +23,19 @@
 						<li class="recentsearch list-group-item small"><a href'#'>Title</a></li>
 					</ul>
 				</div>
+				<% if $Top.Controller.SearchSuggestions.Count %>
 				<div class="panel-heading">
 					<h3 class="panel-title">Search Suggestions</h3>
 				</div>
 				<ul class="list-group">
-					<% loop $Top.SearchSuggestions %>
+					<% loop $Top.Controller.SearchSuggestions %>
 					<li class="list-group-item small">
 						<a href="#">$Term</a>
 					</li>
 					<% end_loop %>
 				</ul>
+				<% end_if %>
 			</div>
-		</div>
 		</div>
 	</div>
 	<% else %>
