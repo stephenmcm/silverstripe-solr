@@ -31,7 +31,6 @@ if(class_exists('ExtensibleSearchPage')) {
 			'MinFacetCount'						=> 1,
 			'FilterFields'						=> 1
 		);
-
 		public $default_search = '*:*';
 
 		/**
@@ -227,14 +226,14 @@ if(class_exists('ExtensibleSearchPage')) {
 						if (isset($facetValues['From'])) {
 							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['From']);
 							$date->setTime(0,0,0); //Set time to the start of the day
-							$from = $date->format('o-m-d\TH:i:s\Z');
+							$from = $date->format('Y-m-d\TH:i:s\Z');
 							//UTC /Z time if we can. Should probably test this and move to a wildcard if it fails
 						} 
 						if (isset($facetValues['To'])) {
 							$date = DateTime::createFromFormat( 'd/m/Y' , $facetValues['To']);
 							$date->setTime(23,59,59); //Set time to the end of the day
 							// This search should now catch the full 24 hours of the day.
-							$to = $date->format('o-m-d\TH:i:s\Z');
+							$to = $date->format('Y-m-d\TH:i:s\Z');
 						}
 						$this->builder->addFilter($facetName, "[" . $from . " TO " . $to . "]");
 					} else {
